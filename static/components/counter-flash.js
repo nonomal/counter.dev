@@ -3,12 +3,7 @@ customElements.define(
     class extends HTMLElement {
         KEY = "close-invest";
         connectedCallback() {
-            if (
-                !window.location.href
-                    .split("#")[0]
-                    .endsWith("/dashboard.html?demo=1") &&
-                !localStorage.getItem(this.KEY)
-            ) {
+            if (false) {
                 this.innerHTML += `
                    <!-- Notification -->
                    <section class="notification">

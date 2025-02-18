@@ -5,10 +5,15 @@
     <title>Counter: Simple Web Analytics</title>
     <meta
       name="description"
-      content="Web Analytics made simple and therefore privacy-friendly."
+      content="Track website visitors with Counter, a privacy-friendly
+      analytics tool. Get daily unique visitor counts, referrer information,
+      and geographical locations. Our open source web analytics tool makes it
+      easy to understand your web traffic. Get started today and pay what and
+      when you want!"
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="css/landing.css" />
+    <link rel="stylesheet" type="text/css" href="css/pwyw.css" />
     <link
       rel="stylesheet"
       type="text/css"
@@ -32,11 +37,18 @@
     <script src="components/base/editaccount.js"></script>
     <script src="components/base/navbar.js"></script>
     <script src="components/base/footer.js"></script>
+    <script src="components/base/pwyw.js"></script>
     <script src="components/counter-flash.js"></script>
+		<script src="https://www.paypal.com/sdk/js?client-id=AerWkj-d8OVv4VFbb4c0YC2C9EYlKw9A6QzZdKqaKHomGcnfiQcBFXL0vtL2A1sF_pfSuVY2IUg8XFbx&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
   </head>
   <body>
     <header>
-      <counter-flash></counter-flash>
+      <section class="notification">
+        <div class="content">
+          <span>Stop the war. Show your solidarity with a banner 🇺🇦</span>
+        </div>
+      </section>
+
       <base-navbar></base-navbar>
     </header>
     <!-- Landing page -->
@@ -52,9 +64,9 @@
             <div class="title gray mt24 mb48">
               Web Analytics made simple and therefore privacy-friendly.
             </div>
-            <a href="welcome.html?sign-up" class="btn-primary mr16"
-              >Get started</a
-            >
+            <a href="welcome.html?sign-up" class="btn-primary mr16">
+              Get started
+            </a>
             <a href="dashboard.html?demo=1" class="btn-secondary">Live demo</a>
           </div>
         </div>
@@ -71,10 +83,9 @@
                 <div class="benefits-item-icon-free"></div>
               </div>
               <div class="benefits-item-description">
-                <h3>Pay what you want</h3>
+                <h3>Pay when ready</h3>
                 <div class="mt8 gray">
-                  It's up to you when and how much you want to pay for this
-                  service.
+                  Start paying  whenever you want.
                 </div>
               </div>
             </div>
@@ -86,7 +97,7 @@
               <div class="benefits-item-description">
                 <h3>Open Source</h3>
                 <div class="mt8 gray">
-                  The source code is published under the AGPL‑v3 license.
+                  The source code is published under the AGPL-v3 license.
                   Collaboration is welcome.
                 </div>
               </div>
@@ -116,17 +127,16 @@
           <div class="features-item radius-sm">
             <div class="features-item-pic">
               <img
-                src="img/visits.svg"
+                src="/img/visits.svg"
                 width="255"
                 height="150"
                 alt="Counts daily unique visitors"
               />
             </div>
             <div class="features-item-description">
-              <h3 class="mb16">Counts daily unique visitors</h3>
-              <span class="gray"
-                >All metrics are based on Daily Unique Visitors which represents
-                a visit at a specific date.
+              <h3 class="mb16">Unique Visitors</h3>
+              <span class="gray">
+                Metrics are based on the number of unique visitors per day.
               </span>
             </div>
           </div>
@@ -134,17 +144,17 @@
           <div class="features-item radius-sm">
             <div class="features-item-pic">
               <img
-                src="img/traffic.svg"
+                src="/img/traffic.svg"
                 width="255"
                 height="150"
                 alt="Know your referrers"
               />
             </div>
             <div class="features-item-description">
-              <h3 class="mb16">Know your referrers</h3>
+              <h3 class="mb16">Referrals</h3>
               <span class="gray">
-                See which other websites, social media, or blogs link to your
-                website and learn how many users come from those external links.
+                See which other websites link to your
+                website.
               </span>
             </div>
           </div>
@@ -152,17 +162,16 @@
           <div class="features-item radius-sm">
             <div class="features-item-pic">
               <img
-                src="img/location.svg"
+                src="/img/location.svg"
                 width="255"
                 height="150"
                 alt="Geographical locations"
               />
             </div>
             <div class="features-item-description">
-              <h3 class="mb16">Focus on what matters</h3>
+              <h3 class="mb16">Focus</h3>
               <span class="gray">
-                We try to avoid superfluous and convoluted information and only
-                show what you can actually understand.
+                We keep things simple and only show what you need to know.
               </span>
             </div>
           </div>
@@ -170,19 +179,17 @@
           <div class="features-item radius-sm">
             <div class="features-item-pic">
               <img
-                src="img/friendly.svg"
+                src="/img/friendly.svg"
                 width="255"
                 height="150"
                 alt="The friendly alternative"
               />
             </div>
             <div class="features-item-description">
-              <h3 class="mb16">The friendly alternative</h3>
-              <span class="gray"
-                >You don't have to choose between free or privacy friendly. We
-                offer a free and privacy friendly analytics service for
-                everyone.</span
-              >
+              <h3 class="mb16">Friendly</h3>
+              <span class="gray">
+								We offer a free and privacy friendly analytics service for everyone.
+              </span>
             </div>
           </div>
         </div>
@@ -201,41 +208,22 @@
             class="btn-secondary"
             target="_blank"
             rel="nofollow"
-            >View project</a
           >
+            View project
+          </a>
         </div>
         <div class="open-source-services">
-          <span>Frontend</span><span>Backend</span>Services
+          <span>Frontend</span>
+          <span>Backend</span>
+          Services
         </div>
       </div>
     </section>
-    <!-- Donate -->
-    <section>
-      <div class="content">
-        <div class="donate-wrap">
-          <div class="donate-icon"></div>
-          <div class="donate-description">
-            <div class="h3 mb8">Pay what you want</div>
-            <div class="gray">
-              Our main goal is to provide the smoothest Web Analytics
-              experience possible.<br/>
-              Therefore we do not enforce payments but politely
-              ask for an affordable service fee.
-            </div>
-          </div>
-          <a
-            href="https://www.paypal.com/donate/?hosted_button_id=3AV353CXCEN9E"
-            class="btn-primary"
-            target="_blank"
-            rel="nofollow"
-            >Pay now</a
-          >
-        </div>
-      </div>
-    </section>
+    <base-pwyw></base-pwyw>
     <base-footer></base-footer>
     <script type="text/javascript">
       $(document).ready(function () {
+        // depltest
         // Features slider
         $(".owl-carousel").owlCarousel({
           items: 1,
@@ -247,5 +235,6 @@
         });
       });
     </script>
+    <!-- this is a test comment -->
   </body>
 </html>

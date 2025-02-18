@@ -1,10 +1,19 @@
+*.ipynb
+archive.db
+archive.db*
 tags
 log
+out
 counter.dev
 webstats
 *.swp
 .config/production.sh
 .config/makefile.env
+static/blog/*
+.DS-Store
+.DS_Store
+._.DS_Store
+
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

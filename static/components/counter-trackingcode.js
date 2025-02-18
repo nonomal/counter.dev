@@ -1,15 +1,15 @@
 customElements.define(
     tagName(),
     class extends HTMLElement {
-        getTrackingCode(user, utcoffset) {
-            return `<script>if(!sessionStorage.getItem("_swa")&&document.referrer.indexOf(location.protocol+"//"+location.host)!== 0){fetch("https://counter.dev/track?"+new URLSearchParams({referrer:document.referrer,screen:screen.width+"x"+screen.height,user:${JSON.stringify(
-                user
-            )},utcoffset:${JSON.stringify(
-                utcoffset
-            )}}))};sessionStorage.setItem("_swa","1");</script>`;
+        getTrackingCode(uuid, utcoffset) {
+            if (String(uuid).includes('"') || String(utcoffset).includes('"')) {
+                console.log("Sanity input validation test failed");
+                return "error, contact support";
+            }
+            return `<script src="https://cdn.counter.dev/script.js" data-id="${uuid}" data-utcoffset="${utcoffset}"></script>`;
         }
 
-        draw(user, utcoffset) {
+        draw(uuid, utcoffset) {
             this.style.display = "block";
             var randId = "tracking-" + Math.floor(Math.random() * 1000000 + 1);
             this.innerHTML = `
@@ -18,7 +18,7 @@ customElements.define(
                       type="text"
                       id="${randId}"
                       class="full"
-                      value='${this.getTrackingCode(user, utcoffset)}'
+                      value='${this.getTrackingCode(uuid, utcoffset)}'
                       readonly
                     />
                     <button

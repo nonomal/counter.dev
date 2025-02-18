@@ -9,6 +9,7 @@
     />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="css/dashboard.css" />
+    <link rel="stylesheet" type="text/css" href="css/pwyw.css" />
     <link
       rel="stylesheet"
       type="text/css"
@@ -31,6 +32,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@easepick/bundle@1.2.0/dist/index.umd.min.js"></script>
+    <script src="https://www.paypal.com/sdk/js?client-id=AerWkj-d8OVv4VFbb4c0YC2C9EYlKw9A6QzZdKqaKHomGcnfiQcBFXL0vtL2A1sF_pfSuVY2IUg8XFbx&vault=true&intent=subscription" data-sdk-integration-source="button-factory"></script>
+
+
+
 
     <script src="/load.js"></script>
     <script src="js/utils.js"></script>
@@ -58,6 +64,7 @@
     <section class="settings">
       <div class="content">
         <dashboard-selector class="settings-left"></dashboard-selector>
+        <dashboard-daterangeselector></dashboard-daterangeselector>
         <div class="settings-right">
           <dashboard-download class="mr16"></dashboard-download>
           <dashboard-settings class="mr16"></dashboard-settings>
@@ -97,8 +104,8 @@
         <!-- Mobile tabs -->
         <ul class="responsive-tabs-menu bg-white shadow-sm">
           <li>
-            <a href="#devices"
-              ><svg
+            <a href="#devices">
+              <svg
                 width="24"
                 height="24"
                 viewBox="0 0 24 24"
@@ -112,12 +119,13 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 />
-                <circle cx="12" cy="18" r="0.5" stroke="#9E9E9E" /></svg
-            ></a>
+                <circle cx="12" cy="18" r="0.5" stroke="#9E9E9E" />
+              </svg>
+            </a>
           </li>
           <li>
-            <a href="#platforms"
-              ><svg
+            <a href="#platforms">
+              <svg
                 width="24"
                 height="24"
                 viewBox="0 0 24 24"
@@ -151,12 +159,13 @@
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                /></svg
-            ></a>
+                />
+              </svg>
+            </a>
           </li>
           <li>
-            <a href="#browsers"
-              ><svg
+            <a href="#browsers">
+              <svg
                 width="24"
                 height="24"
                 viewBox="0 0 24 24"
@@ -197,8 +206,9 @@
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                /></svg
-            ></a>
+                />
+              </svg>
+            </a>
           </li>
         </ul>
         <div id="devices" class="metrics-two-item">
@@ -221,26 +231,13 @@
         </div>
         <!-- Ad -->
         <div class="da bg-white shadow-sm radius-lg">
-          <a
-            href="https://www.linode.com/?r=cef34ccf8bbb2170eb884fdf3b820875f9d0f959"
-          >
-            <img
-              src="img/da.svg"
-              class="radius-lg"
-              width="318"
-              height="212"
-              alt="Ad"
-            />
-          </a>
-          <div class="da-content mt16">
-            <span class="da-label caption red mr16">Ad</span>
-            <span class="caption">Fast &amp; reliable virtual servers</span>
-            <a
-              href="https://www.linode.com/?r=cef34ccf8bbb2170eb884fdf3b820875f9d0f959"
-              class="strong black"
-              >Try now</a
-            >
-          </div>
+          <img
+            src="img/da.svg"
+            class="radius-lg"
+            width="318"
+            height="212"
+            alt="Ad"
+          />
         </div>
         <!-- /// -->
       </div>
@@ -252,8 +249,8 @@
           <!-- Mobile tabs -->
           <ul class="responsive-tabs-menu bg-white shadow-sm">
             <li>
-              <a href="#languages"
-                ><svg
+              <a href="#languages">
+                <svg
                   width="24"
                   height="24"
                   viewBox="0 0 24 24"
@@ -266,12 +263,13 @@
                     stroke-width="2"
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                  /></svg
-              ></a>
+                  />
+                </svg>
+              </a>
             </li>
             <li>
-              <a href="#screens"
-                ><svg
+              <a href="#screens">
+                <svg
                   width="24"
                   height="24"
                   viewBox="0 0 24 24"
@@ -284,8 +282,9 @@
                     stroke-width="2"
                     stroke-linecap="round"
                     stroke-linejoin="round"
-                  /></svg
-              ></a>
+                  />
+                </svg>
+              </a>
             </li>
           </ul>
           <!-- Languages -->
@@ -301,15 +300,15 @@
         <!-- Time -->
         <div class="metrics-two-item">
           <div class="metrics-headline">
-            <img src="img/time.svg" width="24" height="24" alt="Time" />
+            <img src="/img/time.svg" width="24" height="24" alt="Time" />
             <h3 class="ml16">Time</h3>
           </div>
           <div class="metrics-three-data bg-white shadow-sm radius-lg tabs">
             <!-- Tabs -->
             <ul class="tabs-menu shadow-sm">
               <li>
-                <a href="#day"
-                  ><svg
+                <a href="#day">
+                  <svg
                     width="24"
                     height="24"
                     viewBox="0 0 24 24"
@@ -378,12 +377,13 @@
                       stroke-width="2"
                       stroke-linecap="round"
                       stroke-linejoin="round"
-                    /></svg
-                ></a>
+                    />
+                  </svg>
+                </a>
               </li>
               <li>
-                <a href="#hour"
-                  ><svg
+                <a href="#hour">
+                  <svg
                     width="24"
                     height="24"
                     viewBox="0 0 24 24"
@@ -403,12 +403,13 @@
                       stroke-width="2"
                       stroke-linecap="round"
                       stroke-linejoin="round"
-                    /></svg
-                ></a>
+                    />
+                  </svg>
+                </a>
               </li>
               <li>
-                <a href="#week"
-                  ><svg
+                <a href="#week">
+                  <svg
                     width="24"
                     height="24"
                     viewBox="0 0 24 24"
@@ -442,8 +443,9 @@
                       stroke-width="2"
                       stroke-linecap="round"
                       stroke-linejoin="round"
-                    /></svg
-                ></a>
+                    />
+                  </svg>
+                </a>
               </li>
             </ul>
             <!-- Day -->
@@ -469,8 +471,8 @@
         <!-- Mobile tabs -->
         <ul class="responsive-tabs-menu bg-white shadow-sm">
           <li>
-            <a href="#pages"
-              ><svg
+            <a href="#pages">
+              <svg
                 width="24"
                 height="24"
                 viewBox="0 0 24 24"
@@ -490,12 +492,13 @@
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                /></svg
-            ></a>
+                />
+              </svg>
+            </a>
           </li>
           <li>
-            <a href="#visits"
-              ><svg
+            <a href="#visits">
+              <svg
                 width="24"
                 height="24"
                 viewBox="0 0 24 24"
@@ -522,8 +525,9 @@
                   stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                /></svg
-            ></a>
+                />
+              </svg>
+            </a>
           </li>
         </ul>
         <!-- Pages -->
@@ -538,35 +542,13 @@
       </div>
     </section>
     <!-- Donate -->
-    <section>
-      <div class="content">
-        <div class="donate-wrap">
-          <div class="donate-icon"></div>
-          <div class="donate-description">
-            <div class="h3 mb8">Pay what you want</div>
-            <div class="gray">
-              Our main goal is to provide the smoothest Web Analytics
-              experience possible.<br/>
-              Therefore we do not enforce payments but politely
-              ask for an affordable service fee.
-            </div>
-          </div>
-          <a
-            href="https://www.paypal.com/donate/?hosted_button_id=3AV353CXCEN9E"
-            class="btn-primary"
-            target="_blank"
-            rel="nofollow"
-            >Pay now</a
-          >
-        </div>
-      </div>
-    </section>
+    <base-pwyw></base-pwyw>
     <!-- Footer -->
     <base-footer></base-footer>
     <!-- Our tips modal -->
     <div id="modal-tips" style="display: none">
       <div class="modal-header">
-        <img src="img/tips.svg" width="24" height="24" alt="Our tips" />
+        <img src="/img/tips.svg" width="24" height="24" alt="Our tips" />
         <h3 class="ml16">Our tips</h3>
         <a href="#" class="btn-close" rel="modal:close"></a>
       </div>
@@ -577,13 +559,13 @@
           <li>
             <div id="tip-1" class="accordion">
               <span class="accordion-title">
-                <span class="tip-number gradient-green caption black mr16"
-                  >1</span
-                >
-                <a href="#tip-1" class="black"
-                  >Make your content juicy
+                <span class="tip-number gradient-green caption black mr16">
+                  1
+                </span>
+                <a href="#tip-1" class="black">
+                  Make your content juicy
                   <img
-                    src="img/arrow--blue.svg"
+                    src="/img/arrow--blue.svg"
                     width="24"
                     height="24"
                     alt="Arrow"
@@ -601,13 +583,13 @@
           <li>
             <div id="tip-2" class="accordion">
               <span class="accordion-title">
-                <span class="tip-number gradient-green caption black mr16"
-                  >2</span
-                >
-                <a href="#tip-2" class="black"
-                  >Be active on social media
+                <span class="tip-number gradient-green caption black mr16">
+                  2
+                </span>
+                <a href="#tip-2" class="black">
+                  Be active on social media
                   <img
-                    src="img/arrow--blue.svg"
+                    src="/img/arrow--blue.svg"
                     width="24"
                     height="24"
                     alt="Arrow"
@@ -624,13 +606,13 @@
           <li>
             <div id="tip-3" class="accordion">
               <span class="accordion-title">
-                <span class="tip-number gradient-green caption black mr16"
-                  >3</span
-                >
-                <a href="#tip-3" class="black"
-                  >Update old content on your website
+                <span class="tip-number gradient-green caption black mr16">
+                  3
+                </span>
+                <a href="#tip-3" class="black">
+                  Update old content on your website
                   <img
-                    src="img/arrow--blue.svg"
+                    src="/img/arrow--blue.svg"
                     width="24"
                     height="24"
                     alt="Arrow"
@@ -648,13 +630,13 @@
           <li>
             <div id="tip-4" class="accordion">
               <span class="accordion-title">
-                <span class="tip-number gradient-green caption black mr16"
-                  >4</span
-                >
-                <a href="#tip-4" class="black"
-                  >Get irresistible reviews
+                <span class="tip-number gradient-green caption black mr16">
+                  4
+                </span>
+                <a href="#tip-4" class="black">
+                  Get irresistible reviews
                   <img
-                    src="img/arrow--blue.svg"
+                    src="/img/arrow--blue.svg"
                     width="24"
                     height="24"
                     alt="Arrow"
@@ -672,13 +654,13 @@
           <li>
             <div id="tip-5" class="accordion">
               <span class="accordion-title">
-                <span class="tip-number gradient-green caption black mr16"
-                  >5</span
-                >
-                <a href="#tip-5" class="black"
-                  >Learn from your Counter Analytics
+                <span class="tip-number gradient-green caption black mr16">
+                  5
+                </span>
+                <a href="#tip-5" class="black">
+                  Learn from your Counter Analytics
                   <img
-                    src="img/arrow--blue.svg"
+                    src="/img/arrow--blue.svg"
                     width="24"
                     height="24"
                     alt="Arrow"
@@ -695,22 +677,23 @@
         </ul>
       </div>
     </div>
-    <!-- Add a website modal -->
+    <!-- Add website modal -->
     <div id="modal-add" style="display: none">
       <div class="modal-header">
-        <img src="img/add.svg" width="24" height="24" alt="Add a website" />
-        <h3 class="ml16">Add a website</h3>
+        <img src="/img/add.svg" width="24" height="24" alt="Add website" />
+        <h3 class="ml16">Add website</h3>
         <a href="#" class="btn-close" rel="modal:close"></a>
       </div>
       <div class="modal-content">
         <div class="title mb8">Tracking code</div>
         <span class="gray">
           Include this code into the source code of all html pages you want to
-          track. The tracked data will be grouped by your used domains.
+          track. The tracked data will be grouped by your domains.
         </span>
         <counter-trackingcode class="mt16"></counter-trackingcode>
       </div>
     </div>
+
     <script type="text/javascript">
       $(document).ready(function () {
         // Responsive tabs

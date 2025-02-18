@@ -10,17 +10,23 @@ import (
 	"runtime"
 	"strings"
 	"time"
+	"regexp"
 
 	"log"
 
 	"github.com/gomodule/redigo/redis"
 	"github.com/gorilla/sessions"
+
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 type appAdapter struct {
 	App *App
 	fn  func(*Ctx)
 }
+
+var FileComponentLookOk = regexp.MustCompile(`^[a-zA-Z0-9-_]+$`).MatchString
 
 var endpoints = map[string]func(*Ctx){}
 
@@ -38,7 +44,9 @@ func (ah appAdapter) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := ah.App.NewContext(w, r)
 	go func() {
 		<-r.Context().Done()
-		ctx.RunCleanup()
+		if ! ctx.noAutoCleanup {
+			ctx.Cleanup()
+		}
 	}()
 	ah.fn(ctx)
 }
@@ -59,6 +67,7 @@ func EndpointName() string {
 
 type App struct {
 	RedisPool    *redis.Pool
+	DB           *gorm.DB
 	SessionStore *sessions.CookieStore
 	Logger       *log.Logger
 	ServeMux     *http.ServeMux
@@ -104,16 +113,49 @@ func NewApp() *App {
 	}
 	logger := log.New(io.MultiWriter(os.Stdout, logFile), "", log.LstdFlags|log.Lshortfile)
 
-	serveMux := http.NewServeMux()
-	fs := http.FileServer(http.Dir("./static"))
-	serveMux.Handle("/", fs)
+	db, err := gorm.Open(sqlite.Open(config.ArchiveDatabase), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect sqlite3 database")
+	}
 
+	serveMux := http.NewServeMux()
+	//fs := http.FileServer(http.Dir("./static"))
+	serveMux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		var prefix string
+		if r.Host == "localhost:8080" {
+			if strings.HasPrefix(r.URL.Path, "/blog/") ||
+				r.URL.Path == "/blog" ||
+				strings.HasPrefix(r.URL.Path, "/pages/") ||
+				strings.HasPrefix(r.URL.Path, "/help/") ||
+				r.URL.Path == "/blog" {
+				prefix = "./out"
+			} else {
+				prefix = "./static"
+			}
+		} else if r.Host == "counter.dev"|| r.Host == "counter" || r.Host == "simple-web-analytics.com" {
+			prefix = "/state/static/master"
+		} else if r.Host == "www.counter.dev" || r.Host == "www.simple-web-analytics.com" {
+			prefix = "/state/static/master"
+		} else if strings.HasSuffix(r.Host, ".counter.dev") {
+			branch := strings.TrimSuffix(r.Host, ".counter.dev")
+			if !FileComponentLookOk(branch) {
+				w.WriteHeader(http.StatusForbidden)
+			}
+			prefix = "/state/static/" + branch
+		} else {
+			w.WriteHeader(http.StatusBadRequest)
+			fmt.Fprintf(w, "Bad Host")
+			return
+		}
+		http.ServeFile(w, r, prefix+r.URL.Path)
+	})
 	app := &App{
 		RedisPool:    redisPool,
 		SessionStore: sessionStore,
 		Logger:       logger,
 		ServeMux:     serveMux,
 		Config:       config,
+		DB:           db,
 	}
 	return app
 }

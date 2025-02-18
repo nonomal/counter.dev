@@ -23,6 +23,7 @@ type Ctx struct {
 	R         *http.Request
 	OpenConns []io.Closer
 	App       *App
+	noAutoCleanup bool
 }
 
 func (ctx *Ctx) Abort() {
@@ -35,7 +36,7 @@ func (ctx *Ctx) Return(content string, statusCode int) {
 	ctx.Abort()
 }
 
-func (ctx *Ctx) RunCleanup() {
+func (ctx *Ctx) Cleanup() {
 	for _, conn := range ctx.OpenConns {
 		err := conn.Close()
 		if err != nil {
@@ -166,7 +167,15 @@ func (ctx *Ctx) Logout() {
 
 func (ctx *Ctx) User(userId string) models.User {
 	conn := ctx.App.RedisPool.Get()
-	user := models.NewUser(conn, userId)
+	user := models.NewUser(conn, userId, ctx.App.DB, ctx.App.Config.PasswordSalt)
+	ctx.OpenConns = append(ctx.OpenConns, conn)
+	return user
+}
+
+func (ctx *Ctx) UserByCachedUUID(uuid string) models.User {
+	conn := ctx.App.RedisPool.Get()
+	user, err := models.NewUserByCachedUUID(conn, uuid, ctx.App.DB, ctx.App.Config.PasswordSalt)
+	ctx.CatchError(err)
 	ctx.OpenConns = append(ctx.OpenConns, conn)
 	return user
 }
@@ -194,4 +203,21 @@ func (ctx *Ctx) CheckMethod(methods ...string) {
 	if !found {
 		ctx.Return("Method Not Allowed", 405)
 	}
+}
+
+
+func (ctx *Ctx) SendEventSourceData(data interface{}) {
+	jsonBin, err := json.Marshal(data)
+	ctx.CatchError(err)
+	fmt.Fprintf(ctx.W, "data: %s\n\n", string(jsonBin))
+	f, ok := ctx.W.(http.Flusher)
+	if !ok {
+		panic("Flush not supported by library")
+	}
+	f.Flush()
+}
+
+
+func (ctx *Ctx) NoAutoCleanup() {
+	ctx.noAutoCleanup = true
 }

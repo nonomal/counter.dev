@@ -6,10 +6,10 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/avct/uasurfer"
 	"github.com/ihucos/counter.dev/lib"
 	"github.com/ihucos/counter.dev/models"
 	"github.com/ihucos/counter.dev/utils"
+	"github.com/xavivars/uasurfer"
 	"golang.org/x/text/language"
 	"golang.org/x/text/language/display"
 )
@@ -31,14 +31,21 @@ func init() {
 		//
 		// Input validation
 		//
-		userId := ctx.R.FormValue("user")
-		if userId == "" {
-			// this has to be supported until the end of time, or
-			// alternatively all current users are not using that option.
-			userId = ctx.R.FormValue("site")
+		var user models.User
+		uuid := ctx.R.FormValue("id")
+		if uuid == "" {
+			userId := ctx.R.FormValue("user")
 			if userId == "" {
-				ctx.ReturnBadRequest("missing site param")
+				// this has to be supported until the end of time, or
+				// alternatively all current users are not using that option.
+				userId = ctx.R.FormValue("site")
+				if userId == "" {
+					ctx.ReturnBadRequest("missing site param")
+				}
 			}
+			user = ctx.User(userId)
+		} else {
+			user = ctx.UserByCachedUUID(uuid)
 		}
 
 		//
@@ -71,7 +78,7 @@ func init() {
 		// drop if bot or origin is from localhost
 		// see issue: https://github.com/avct/uasurfer/issues/65
 		//
-		if ua.IsBot() || strings.Contains(userAgent, " HeadlessChrome/") {
+		if ua.IsBot() || strings.Contains(userAgent, " HeadlessChrome/") || strings.Contains(userAgent, "PetalBot;") || strings.Contains(userAgent, "AdsBot") {
 			return
 		}
 		originUrl, err := url.Parse(origin)
@@ -89,13 +96,7 @@ func init() {
 			visit["ref"] = parsedUrl.Host
 		}
 
-		var ref string
-		_, ok := ctx.R.Header["X-Referer"]
-		if ok {
-			ref = ctx.R.Header.Get("X-Referer")
-		} else {
-			ref = ctx.R.Header.Get("Referer")
-		}
+		ref := ctx.R.Header.Get("Referer")
 
 		parsedUrl, err = url.Parse(ref)
 		if err == nil && parsedUrl.Path != "" {
@@ -108,7 +109,11 @@ func init() {
 			visit["lang"] = lang
 		}
 
-		country := ctx.R.Header.Get("CF-IPCountry")
+		country := ctx.R.FormValue("country")
+		if country == "" {
+			country = ctx.R.Header.Get("CF-IPCountry")
+		}
+		
 		if country != "" && country != "XX" {
 			visit["country"] = strings.ToLower(country)
 		}
@@ -135,15 +140,23 @@ func init() {
 
 		visit["device"] = device
 
-		visit["platform"] = ua.OS.Platform.StringTrimPrefix()
+		var platform string
+		// Show "Android" on android devices instead of "Linux".
+		if ua.OS.Name == uasurfer.OSAndroid {
+			platform = "Android"
+		} else {
+			platform = ua.OS.Platform.StringTrimPrefix()
+
+		}
+		visit["platform"] = platform
 
 		//
 		// save visit map
 		//
-		logLine := fmt.Sprintf("[%s] %s %s %s", now.Format("2006-01-02 15:04:05"), country, refParam, device)
+		logLine := fmt.Sprintf("[%s] %s %s %s %s", now.Format("2006-01-02 15:04:05"), country, refParam, device, platform)
 
 		siteId := Origin2SiteId(origin)
-		user := ctx.User(userId)
+
 		visits := user.NewSite(siteId)
 		visits.SaveVisit(visit, now)
 		visits.Log(logLine)

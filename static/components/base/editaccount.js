@@ -7,7 +7,7 @@ customElements.define(
                 <!-- Edit account modal -->
                 <div id="modal-account" style="display: none">
                   <div class="modal-header">
-                    <img src="img/account.svg" width="24" height="24" alt="Edit account" />
+                    <img src="/img/account.svg" width="24" height="24" alt="Edit account" />
                     <h3 class="ml16">Edit account</h3>
                     <a href="#" class="btn-close" rel="modal:close"></a>
                   </div>
@@ -26,11 +26,11 @@ customElements.define(
                         <!-- Change password -->
                         <div class="title mb8 mt24">Change Password</div>
                         <label class="old-pass width-full"
-                          >Old password<input
+                          >Current or temporary password<input
                             name="current_password"
                             class="width-full"
                             type="password"
-                            placeholder="Old password"
+                            placeholder="Valid password"
                         /></label>
                         <div class="new-pass flex mb8 mt16">
                           <label class="width-half mr16"
@@ -48,13 +48,20 @@ customElements.define(
                               placeholder="Repeat new password"
                           /></label>
                         </div>
-                        <span class="caption gray">We do not recover passwords!</span>
+                        <!-- Mail -->
+                        <div class="title mb8 mt24">Recover account</div>
+                        <input
+                            name="mail"
+                            class="width-full"
+                            type="email"
+                            placeholder="Trusted E-Mail"
+                        /></label>
                         <!-- Whitelist domains -->
                         <div class="title mb16 mt24">Listed Domains</div>
 
                             <select class="width-full" name="usesites">
                                   <option value="">
-                                    Show all incomming traffic
+                                    Show all incoming traffic
                                   </option>
                                   <option value="1">
                                     Limit listed domains
@@ -78,7 +85,7 @@ customElements.define(
                         <!-- Request delete -->
                         <div class="delete-request">
                           <div class="danger-message caption full mr16">
-                            <img src="img/alert.svg" width="24" height="24" alt="Alert" />
+                            <img src="/img/alert.svg" width="24" height="24" alt="Alert" />
                             <span class="ml16"
                               >Deleting your account removes all data you've
                               collected!</span
@@ -113,12 +120,15 @@ customElements.define(
             }
 
             var sites = prefs.sites || "";
+            var mail = prefs.mail || "";
             var useSites = prefs.usesites || "";
             var sitesEl = this.querySelector('textarea[name="sites"]');
             var useSitesEl = this.querySelector('select[name="usesites"]');
+            var mailEl = this.querySelector('input[name="mail"]');
 
             useSitesEl.value = useSites;
             sitesEl.value = sites;
+            mailEl.value = mail;
 
             let showHidePrefferedSites = function () {
                 if (useSitesEl.value === "") {

@@ -1,3 +1,5 @@
+
+window.state = {}
 Chart.defaults.global.tooltips = {
     ...Chart.defaults.global.tooltips,
     ...{
@@ -20,6 +22,11 @@ Chart.defaults.global.tooltips = {
         displayColors: false,
     },
 };
+Chart.defaults.global.tooltips.callbacks.label = function (tooltipItem, data) {
+    var value = data.datasets[0].data[tooltipItem.index];
+    return numberFormat(value);
+};
+
 Chart.defaults.global.animation.duration = 0;
 
 function getSelectorEl() {
@@ -62,7 +69,7 @@ connectData("dashboard-download", (dump) => [
 ]);
 
 connectData("counter-trackingcode", (dump) => [
-    dump.user.id,
+    dump.user.uuid,
     dump.user.prefs.utcoffset || getUTCOffset(),
 ]);
 
@@ -81,7 +88,7 @@ connectData("dashboard-graph", (dump) => [
 connectData("dashboard-settings", (dump) => [
     {
         cursite: selector.site,
-        userId: dump.user.id,
+        uuid: dump.user.uuid,
         meta: dump.meta,
         utcoffset: dump.user.prefs.utcoffset || getUTCOffset(),
     },
@@ -113,15 +120,109 @@ connectData("#browsers dashboard-pie", k("browser"));
 connectData("dashboard-sources-countries", k("ref", "country"));
 connectData("dashboard-languages", k("lang"));
 connectData("dashboard-screens", k("screen"));
-connectData("dashboard-pages", k("loc"));
+connectData("dashboard-pages", k("page"));
 connectData("dashboard-visits", (dump) => [dump.sites[selector.site].logs]);
 connectData("dashboard-hour", k("hour"));
 connectData("dashboard-week", k("weekday"));
 connectData("dashboard-time", k("hour"));
 connectData("dashboard-share-account", (dump) => [dump.user, dump.meta]);
 
-function drawComponents(url) {
-    var source = new EventSource(url);
+document.addEventListener("push-dump", (evt) => {
+    if (Object.keys(evt.detail.sites).length === 0) {
+        window.location.href = "setup.html";
+    }
+});
+
+document.addEventListener("push-dump", (evt) => {
+    var dump = evt.detail;
+    patchDump(dump)
+    document.dispatchEvent(new CustomEvent("redraw", { detail: dump }));
+});
+
+document.addEventListener("push-archive", (evt) => {
+    window.state.archives = evt.detail;
+});
+
+document.addEventListener("push-nouser", () => {
+    window.location.href = "welcome.html";
+});
+
+
+document.addEventListener("push-oldest-archive-date", (evt) => {
+    customElements.whenDefined("dashboard-daterangeselector").then((el) => {
+        let drs = document.getElementsByTagName(
+            "dashboard-daterangeselector"
+        )[0];
+        drs.draw(evt.detail || moment().format('YYYY-MM-DD'))
+    })
+})
+
+function patchArchiveVisit(visit){
+    if (!visit.ref) {visit.ref = {}}
+    return visit
+
+}
+
+
+function patchDump(dump){
+    addArchivesToDump(window.state.archives, dump);
+    addDaterangeToDump(window.state.daterange || {}, dump)
+
+}
+
+function addArchivesToDump(archives, dump) {
+    for (const site of Object.keys(dump.sites)) {
+
+        dump.sites[site].visits.last7 =  patchArchiveVisit(mergeVisits([
+            dump.sites[site].visits.day,
+            dump.sites[site].visits.yesterday,
+            archives["-7:-2"][site] || {},
+        ]));
+
+        dump.sites[site].visits.last30 = patchArchiveVisit(mergeVisits([
+            dump.sites[site].visits.day,
+            dump.sites[site].visits.yesterday,
+            archives["-30:-2"][site] || {},
+        ]));
+
+    }
+    return dump
+}
+
+
+function addDaterangeToDump(daterange, dump) {
+    for (const site of Object.keys(dump.sites)){
+        let siteData = daterange[site]
+        let nildata = Object.fromEntries(Object.keys(dump.sites[site].visits.all).map((k)=>[k, {}]))
+        if (siteData){
+            dump.sites[site].visits.daterange = {...nildata, ...siteData}
+        } else {
+            dump.sites[site].visits.daterange = nildata
+        }
+    }
+}
+
+function mergeVisits(visits) {
+    let merged = {};
+    for (const visit of visits) {
+        for (const [dimension, typesWithCount] of Object.entries(visit)) {
+            for (const [type, count] of Object.entries(typesWithCount)) {
+                if (!(dimension in merged)) {
+                    merged[dimension] = {};
+                }
+                if (!(type in merged[dimension])) {
+                    merged[dimension][type] = 0;
+                }
+                merged[dimension][type] += count;
+            }
+        }
+    }
+    return merged;
+}
+
+function drawComponents() {
+    var source = dispatchPushEvents(getDumpURL());
+
     customElements.whenDefined("dashboard-connstatus").then((el) => {
         let connstatus = document.getElementsByTagName(
             "dashboard-connstatus"
@@ -130,22 +231,6 @@ function drawComponents(url) {
         source.onopen = () => connstatus.message("Live");
         source.onerror = (err) => connstatus.message("Disconnected");
     });
-    source.onmessage = (event) => {
-        let dump = JSON.parse(event.data);
-
-        if (!dump) {
-            window.location.href = "welcome.html";
-            return;
-        }
-
-        if (Object.keys(dump.sites).length === 0) {
-            window.location.href = "setup.html";
-        }
-
-        document.dispatchEvent(new CustomEvent("redraw", { detail: dump }));
-
-        //document.getElementsByTagName("body")[0].style.display = "block";
-    };
 }
 
 document.addEventListener("redraw", (evt) => {
@@ -171,7 +256,7 @@ function getDumpURL() {
 
 customElements.whenDefined(selector.localName).then(() => {
     customElements.upgrade(selector);
-    drawComponents(getDumpURL());
+    drawComponents();
 });
 
 // not used currently
@@ -179,11 +264,8 @@ function flash(msg) {
     document.getElementsByTagName("base-flash")[0].flash(msg);
 }
 
-function kFormat(num) {
-    num = Math.floor(num);
-    return Math.abs(num) > 999
-        ? Math.sign(num) * (Math.abs(num) / 1000).toFixed(1) + "K"
-        : Math.sign(num) * Math.abs(num) + "";
+function numberFormat(x) {
+    return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
 function percentRepr(value, total) {
@@ -218,7 +300,15 @@ function getUTCNow(utcoffset) {
     return moment().add(parseInt(utcoffset), "hours").toDate();
 }
 
-function dPadDates(dates, utcoffset) {
+function dFillDatesToNow(myDates, utcoffset) {
+    // Hack, sort the keys in the object
+    dates = Object.keys(myDates)
+        .sort()
+        .reduce(function (acc, key) {
+            acc[key] = myDates[key];
+            return acc;
+        }, {});
+
     var daysRange = (s, e) => {
         var s = new Date(s);
         var e = new Date(e);
@@ -239,18 +329,16 @@ function dPadDates(dates, utcoffset) {
     };
 }
 
-function dNormalizedDates(dates, utcoffset) {
-    let groupedByDay = dPadDates(dates, utcoffset);
-
-    let allMonths = Object.entries(groupedByDay).reduce((acc, val) => {
+function dGroupDates(dates) {
+    let allMonths = Object.entries(dates).reduce((acc, val) => {
         let group = moment(val[0]).format("MMMM YYYY");
-        acc.add(group)
+        acc.add(group);
         return acc;
     }, new Set());
 
-    let groupedByMonth = Object.entries(groupedByDay).reduce((acc, val) => {
-        let group
-        if ((allMonths.size) <= 12) {
+    let groupedByMonth = Object.entries(dates).reduce((acc, val) => {
+        let group;
+        if (allMonths.size <= 12) {
             group = moment(val[0]).format("MMMM");
         } else {
             group = moment(val[0]).format("MMM YYYY");
@@ -259,13 +347,13 @@ function dNormalizedDates(dates, utcoffset) {
         return acc;
     }, {});
 
-    let groupedByWeek = Object.entries(groupedByDay).reduce((acc, val) => {
+    let groupedByWeek = Object.entries(dates).reduce((acc, val) => {
         let group = moment(val[0]).format("[CW]w");
         acc[group] = (acc[group] || 0) + val[1];
         return acc;
     }, {});
 
-    var groupedDates = groupedByDay;
+    var groupedDates = dates;
     if (Object.keys(groupedDates).length > 31) {
         groupedDates = groupedByWeek;
         // if it's still to big, use months. 16 is a magic number to swap to the per month view
@@ -316,3 +404,14 @@ function dGetNormalizedHours(hours) {
         ...formatedHours,
     };
 }
+
+whenReady('base-navbar', (el)=>{
+    el.loggedInUserCallback((userDump) => {
+        // user loaded
+        var daysTracked = Math.max(...Object.values(userDump.sites).map((i)=>Object.keys(i.visits.all.date).length))
+        if (daysTracked > 90 && sessionStorage.getItem('pwyw') === null && (!userDump.user.isSubscribed)){
+            whenReady('base-pwyw', (el)=>el.modal())
+            sessionStorage.setItem('pwyw', '1')
+        }
+    }, () => {})
+})

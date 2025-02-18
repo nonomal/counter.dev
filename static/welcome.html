@@ -37,17 +37,24 @@
         <!-- Text -->
         <div class="welcome-text">
           <h1>Welcome</h1>
-          <div class="title gray mt16 mb32">Sign up in no time.</div>
+          <div class="title gray mt16 mb32">
+            Tracking code is shown after sign up.
+          </div>
           <!-- Features -->
           <!-- Item -->
           <div class="welcome-features-item flex bg-white radius-sm mb16">
-            <img src="img/free-sm.svg" width="24" height="24" alt="Pay as you want" />
-            <h3 class="ml16">Pay as you want</h3>
+            <img
+              src="/img/free-sm.svg"
+              width="24"
+              height="24"
+              alt="Pay when ready"
+            />
+            <h3 class="ml16">Pay when ready</h3>
           </div>
           <!-- Item -->
           <div class="welcome-features-item flex bg-white radius-sm mb16">
             <img
-              src="img/open-sm.svg"
+              src="/img/open-sm.svg"
               width="24"
               height="24"
               alt="Open Source"
@@ -57,7 +64,7 @@
           <!-- Item -->
           <div class="welcome-features-item flex bg-white radius-sm">
             <img
-              src="img/privacy-sm.svg"
+              src="/img/privacy-sm.svg"
               width="24"
               height="24"
               alt="privacy-friendly"
@@ -76,51 +83,131 @@
           <div id="sign-in" style="display: none">
             <form action="/login" method="POST">
               <div class="title mb16">Log in to your account</div>
-              <label class="width-full mb8"
-                >Username<input
+              <label class="width-full mb8">
+                Username
+                <input
                   class="width-full"
                   type="text"
                   name="user"
                   placeholder="Enter your username"
-              /></label>
-              <label class="width-full"
-                >Password<input
+                />
+              </label>
+              <label class="width-full">
+                Password
+                <input
                   class="width-full"
                   name="password"
                   type="password"
                   placeholder="Enter your password"
-              /></label>
-              <button class="btn-secondary mt24" type="submit">Log in</button>
+                />
+              </label>
+              <div class="flex" style="justify-content: space-between">
+                <button class="btn-secondary mt24" type="submit">Log in</button>
+                <a
+                  class="btn-white mt24"
+                  href="#modal-recover"
+                  style="font-weight: 400"
+                  rel="modal:open"
+                >
+                  Forgot password
+                </a>
+              </div>
             </form>
           </div>
           <!-- Sign up -->
           <div id="sign-up">
             <form action="/register" method="POST">
               <div class="title mb16">Sign up to Counter</div>
-              <label class="width-full mb8"
-                >Username<input
-                  class="width-full"
-                  name="user"
-                  type="text"
-                  placeholder="Enter your username"
-              /></label>
+
+              <div class="flex mb8">
+                <label class="width-half mr16">
+                  Username
+                  <input
+                    class="width-full"
+                    name="user"
+                    type="text"
+                    placeholder="Username"
+                  />
+                </label>
+
+                <label class="width-half">
+                  E-Mail
+                  <input
+                    class="width-full"
+                    name="mail"
+                    type="email"
+                    placeholder="E-Mail (optional)"
+                  />
+                </label>
+              </div>
+
               <script>
                 document.write(`<input type="hidden" name="utcoffset" value="${getUTCOffset()}">
                   </input>`);
               </script>
-              <label class="width-full"
-                >Password<input
+              <label class="width-full">
+                Password
+                <input
                   class="password-input width-full"
                   name="password"
                   type="password"
-                  placeholder="Enter your password"
-              /></label>
+                  placeholder="Choose a password"
+                />
+              </label>
               <button class="btn-secondary mt24" type="submit">Sign up</button>
             </form>
           </div>
         </div>
       </div>
     </section>
+
+    <!-- Forgot Password -->
+    <div id="modal-recover" style="display: none">
+      <div class="modal-header">
+        <img src="/img/account.svg" width="24" height="24" alt="Edit account" />
+        <h3 class="ml16">Recover account</h3>
+        <a href="#" class="btn-close" rel="modal:close"></a>
+      </div>
+      <div class="modal-content">
+        <form action="/recover" method="POST">
+          <!-- mail -->
+          <label class="width-full mb8">
+            Email
+            <input
+              class="width-full"
+              name="mail"
+              type="email"
+              placeholder="Account E-Mail"
+            />
+          </label>
+
+          <!-- username -->
+          <label class="width-full mb24">
+            Username
+            <input
+              class="width-full"
+              type="text"
+              name="user"
+              placeholder="Enter your username"
+            />
+          </label>
+
+          <span class="caption gray">
+            This works if you actually provided us your email. Write to
+            <a href="mailto:hey@counter.dev">hey@counter.dev</a>
+            for a manual verification process if desired.
+          </span>
+
+          <div class="account-btn-group flex mt24 mb32">
+            <a href="#" class="btn-secondary full mr16" rel="modal:close">
+              Cancel
+            </a>
+            <button type="submit" class="btn-primary full">Recover</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <base-footer></base-footer>
     <script src="js/welcome.js"></script>
   </body>

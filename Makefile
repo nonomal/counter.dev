@@ -1,52 +1,115 @@
 
-alpineversion = 3.11
-go = $(abspath ./scripts/go)
+alpineversion = edge
 
+.DEFAULT_GOAL := all
 
 include .config/makefile*.env
 export
 
 
-
-.PHONY: runserver
+.PHONY: devserver
 devserver:
-	make build
-	. .config/dev.sh && ./webstats
+	make buildlocal
+	PLASH_EXPORT=WEBSTATS_MAILGUN_SECRET_API_KEY . .config/dev.sh && exec ./webstats
 
 .PHONY: tests
 tests:
-	. .config/test.sh && $(go) test
+	. .config/test.sh && go test
 
+.PHONY: format
 format:
-	plash --from alpine:3.11 --apk npm --run 'npm i prettier --global' -- prettier --write .
+	plash --from alpine:$(alpineversion) --apk npm --run 'npm i prettier --global' -- prettier --html-whitespace-sensitivity ignore --write .
 	find -type f -name \*.go | xargs -L1 go fmt
 
+.PHONY: logs
 logs:
-	ssh root@172.104.148.60 cat log
+	ssh root@counter cat log
 
+.PHONY: logs
+get-newsletter-subscriptions:
+	ssh root@counter /state/scripts/get-newsletter-subscriptions
+
+# .PHONY: chgprodpwd
+# chgprodpwd:
+# 	ssh root@counter ''. .config/production.sh && python3 scripts/chgpwd.py $(user) $(password)
+
+
+# .PHONY: chglocalpwd
+# chglocalpwd:
+# 	. .config/.sh && python3 scripts/chgpwd.py $(user) $(password)
+
+.PHONY: build
 build:
-	cd backend && $(go) build -o ../webstats
+	./scripts/build
 
+
+.PHONY: buildlocal
+buildlocal:
+	cd backend && go build -o ../webstats
+
+.PHONY: deploy
 deploy:
 	make build
-	make deploy-static
-	ssh root@172.104.148.60 "pkill -x dtach; sleep 5; dtach -n /tmp/dtach ./scripts/prodrun"
+	rsync .config/makefile.env  root@counter:/state/config/ -v
+	rsync .config/production.sh  root@counter:/state/config/ -v
+	rsync scripts/*  root@counter:/state/scripts/ -av
+	rsync webstats root@counter:/state/webstats
+	ssh root@counter "pkill -x dtach; sleep 5; dtach -n /tmp/dtach /state/scripts/prodrun"
 
-deploy-static:
-	rsync static .config webstats scripts root@172.104.148.60: -av
-	curl -X POST "https://api.cloudflare.com/client/v4/zones/$(CLOUDFLARE_ZONE1)/purge_cache" -H "Content-Type:application/json" -H "Authorization: Bearer $(CLOUDFLARE_TOKEN)" --data '{"purge_everything":true}' --fail
-	curl -X POST "https://api.cloudflare.com/client/v4/zones/$(CLOUDFLARE_ZONE2)/purge_cache" -H "Content-Type:application/json" -H "Authorization: Bearer $(CLOUDFLARE_TOKEN)" --data '{"purge_everything":true}' --fail
-
+.PHONY: redis-server
 redis-server:
-	scp root@172.104.148.60:/var/lib/redis/dump.rdb /tmp/webstats-production.rdb
-	plash --from alpine:$(alpineversion) --apk redis -- redis-server --dbfilename webstats-production.rdb --dir /tmp
+	plash cached pull:lxc alpine:$(alpineversion) 
+	plash noid cached create apk add redis
+
+	ssh root@counter redis-cli save
+	scp root@counter:/var/lib/redis/dump.rdb /tmp/webstats-production.rdb
+
+	plash noid run redis-server --dbfilename webstats-production.rdb --dir /tmp
 
 .PHONY: log
 log:
-	ssh root@172.104.148.60 tail log
+	ssh root@counter tail log
 
+.PHONY: integrations
 integrations:
-	ssh root@172.104.148.60 python3 scripts/integrations.py
+	ssh root@counter python3 /state/scripts/integrations.py
+
+
+out/blog: templates/blog/* $(shell find content/posts)
+	mkdir -p out/blog
+	cd .pelican && pelican content
+	touch out/blog # mark as done
+
+
+out/pages/%.html: content/pages/%.md templates/pages.html
+	yasha -o $@  --file $< --extensions templates/ext.py templates/pages.html
+
+out/help/%.html: content/help/%.md templates/ext.py templates/help.html
+	yasha -o $@ --file $< --extensions templates/ext.py templates/help.html
+
+
+HELP_MD_FILES := $(wildcard content/help/*.md)
+HELP_HTML_FILES := $(patsubst content/help/%.md,out/help/%.html,$(HELP_MD_FILES))
+
+PAGES_MD_FILES := $(wildcard content/pages/*.md)
+PAGES_HTML_FILES := $(patsubst content/pages/%.md,out/pages/%.html,$(PAGES_MD_FILES))
+
+all: out/pages out/help out/blog  $(HELP_HTML_FILES) $(PAGES_HTML_FILES)
+
+
+.PHONY: clean
+clean:
+	rm -rf out
+
+out/pages:
+	mkdir -p out/pages
+
+out/help:
+	mkdir -p out/help
+
+download-archives:
+	ssh root@counter cp /state/db/archive.db /tmp/archive.db
+	scp root@counter:/tmp/archive.db /tmp/archive.db
 
 
 # Snippset needed when setting counter.dev up in new servers

@@ -1,13 +1,16 @@
 class Counter extends HTMLElement {
-    topLevelDomainRe = /(?:www\.){0,1}([-\w]+\.(?:[-\w]+\.xn--[-\w]+|[-\w]{2,}|[-\w]+\.[-\w]{2})$)/i;
+    topLevelDomainRe =
+        /(?:www\.){0,1}([-\w]+\.(?:[-\w]+\.xn--[-\w]+|[-\w]{2,}|[-\w]+\.[-\w]{2})$)/i;
 
     nextTime = {
         day: "yesterday",
-        yesterday: "week",
-        week: "month",
+        yesterday: "last7",
+        last7: "last30",
+        last30: "all",
         month: "year",
         year: "all",
         all: "all",
+        daterange: "all",
     };
 
     draw(allVisits, curTime, utcoffset) {
@@ -16,11 +19,11 @@ class Counter extends HTMLElement {
         let nextCount = this.count(allVisits[nextCurTime]);
 
         let datesPassedCurTime = Object.keys(
-            dPadDates(allVisits[curTime].date, utcoffset),
+            dFillDatesToNow(allVisits[curTime].date, utcoffset),
             utcoffset
         ).length;
         let datesPassedNextTime = Object.keys(
-            dPadDates(allVisits[nextCurTime].date, utcoffset)
+            dFillDatesToNow(allVisits[nextCurTime].date, utcoffset)
         ).length;
 
         // hotfix: yesteday is special because it is a point in time and not time range
@@ -56,7 +59,7 @@ class Counter extends HTMLElement {
 
         this.classList.add("category");
         this.innerHTML = `
-          <div class="h2 blue">${count}</div>
+          <dashboard-number class="h2 blue">${count}</dashboard-number>
           <div class="category-label">
             ${escapeHtml(this.getAttribute("text"))}
             <div
